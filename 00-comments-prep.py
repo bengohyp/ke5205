@@ -55,7 +55,6 @@ def remove_non_ascii(s): return "".join(i for i in s if ord(i)<128)
 def cleanup_dict(input_dict):
   #delete empty records
   delete_empty(input_dict)
-  import re
   import html
   import progressbar
   bar = progressbar.ProgressBar(maxval=len(input_dict), widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
