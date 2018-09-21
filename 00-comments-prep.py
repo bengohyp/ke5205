@@ -106,15 +106,19 @@ def beautify_text(input_dict):
     
 def main():
   FILEPATH = 'data/comments.json'
-  KEY = 'text'
-  comments = {}
-  comments = min_extract_to_dict(FILEPATH, KEY)
+  KEY1 = 'title'
+  KEY2 = 'text'
+  comments_title = {}
+  comments_title = min_extract_to_dict(FILEPATH, KEY1)
+  comments_text = {}
+  comments_text = min_extract_to_dict(FILEPATH, KEY2)
   #comments = extract_to_dict(FILEPATH)
-  cleanup_dict(comments)
-  beautified_comments = {}
-  beautified_comments = beautify_text(comments)
-  for i in range(10):
-    print(beautified_comments[str(i)])
+  cleanup_dict(comments_title)
+  cleanup_dict(comments_text)
+  beautified_comments_title = {}
+  beautified_comments_title = beautify_text(comments_title)
+  beautified_comments_text = {}
+  beautified_comments_text = beautify_text(comments_text)
 
 if __name__ == '__main__':
   main()

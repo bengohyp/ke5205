@@ -115,8 +115,6 @@ def main():
   beautified_title = beautify_text(documents, KEY1)
   beautified_text = {}
   beautified_text = beautify_text(documents, KEY2)
-  for i in range(10):
-    print(beautified_documents[str(i)])
 
 if __name__ == '__main__':
   main()
