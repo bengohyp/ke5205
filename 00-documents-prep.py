@@ -1,19 +1,6 @@
 #!/usr/bin/python -tt
 
-def show_progress_bar():
-  import progressbar
-  from time import sleep
-  bar = progressbar.ProgressBar(maxval=100, widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
-  bar.start()
-  for i in range(100):
-    bar.update(i+1)
-    sleep(0.1)
-  bar.finish()
-
-  
-  
-#extract_to_dict accepts a filepath to a json file and
-#outputs a dictionary that contains all the values
+#extract_to_dict accepts a filepath to a json file and outputs a dictionary that contains all the values
 def extract_to_dict(file_path):
   import json
   file = open(file_path)
@@ -23,8 +10,7 @@ def extract_to_dict(file_path):
 
 
 
-#delete_empty takes in a dictionary and deletes the keys
-#that are empty
+#delete_empty takes in a dictionary and deletes the keys that are empty
 def delete_empty(input_dict, key1, key2):
   to_delete = []
   for index in range(0, len(input_dict)):
@@ -33,13 +19,15 @@ def delete_empty(input_dict, key1, key2):
   to_delete.reverse()
   for index in to_delete:
     del input_dict[index]
-    
-    
 
+
+
+#remove_non_ascii takes a string and strips all non-ascii characters from it before returning a string
 def remove_non_ascii(s): return "".join(i for i in s if ord(i)<128)
 
 
 
+#cleanup_dict takes a dictionary, removes all empty records, converts byte type to unicode, removes all non ascii characters, and remove html encoding
 def cleanup_dict(input_dict, key1, key2):
   #delete empty records
   delete_empty(input_dict, key1, key2)
@@ -71,6 +59,7 @@ def cleanup_dict(input_dict, key1, key2):
 
 
 
+#checkUrl takes a string and checks if it is a properly formed URL address
 def checkUrl(s):
   from urllib.parse import urlparse
   parse_result = urlparse(str(s))
@@ -78,9 +67,8 @@ def checkUrl(s):
   else: return True
 
 
-  
-#beautify_text accepts a dict and outputs a dict
-#with all the html tags and encoding removed
+
+#beautify_text accepts a dict and outputs a dict with all the html tags and encoding removed
 def beautify_text(input_dict, key):
   #!pip install bs4
   from bs4 import BeautifulSoup
@@ -103,7 +91,8 @@ def beautify_text(input_dict, key):
     bar.finish()
   return result
 
-    
+
+
 def main():
   FILEPATH = 'data/documents.json'
   KEY1 = 'title'
@@ -115,6 +104,8 @@ def main():
   beautified_title = beautify_text(documents, KEY1)
   beautified_text = {}
   beautified_text = beautify_text(documents, KEY2)
+
+
 
 if __name__ == '__main__':
   main()
