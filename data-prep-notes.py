@@ -37,3 +37,14 @@ while i < 30:
         soup = BeautifulSoup(text_list[0][str(i)])
         print(soup.get_text())
     i += 1
+
+for i in range(5):
+    for key in comments[i]:
+        print(key)
+        print(comments[i][str(key)])
+        i += 1
+
+
+for index in range(0, len(documents)):
+    if((type(documents[index]['title']) is None) or (type(documents[index]['title']) == type(None))) and ((type(documents[index]['text']) is None) or (type(documents[index]['text']) == type(None))):
+      to_delete.append(index)
