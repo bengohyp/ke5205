@@ -17,8 +17,7 @@ def min_extract_to_dict(file_path, key):
 def delete_empty(input_dict):
     to_delete = []
     for key in input_dict:
-        if ((type(input_dict[str(key)]) is None) or
-                (type(input_dict[str(key)]) is type(None))):
+        if (isinstance(input_dict[str(key)], type(None))):
             to_delete.append(key)
     for key in to_delete:
         del input_dict[str(key)]
@@ -54,8 +53,7 @@ def sanitize_dict(input_dict):
     for key in input_dict:
         bar.update(count)
         count += 1
-        if ((type(input_dict[str(key)]) is None) or 
-                (type(input_dict[str(key)]) is type(None))):
+        if (isinstance(input_dict[str(key)], type(None))):
             pass
         else:
             # convert byte to unicode
@@ -92,7 +90,7 @@ def generate_wordcloud(input_dict, output_file_path):
     tokens_nop = [t for t in tokens if t not in string.punctuation]
     # convert all characters to lower case
     tokens_lower = [t.lower() for t in tokens_nop]
-    # Create a stopword list from the standard list of stopwords available in 
+    # Create a stopword list from the standard list of stopwords available in
     # nltk
     stop = stopwords.words('english')
     # Remove all these stopwords from the text
