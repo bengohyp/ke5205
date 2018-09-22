@@ -48,3 +48,27 @@ for i in range(5):
 for index in range(0, len(documents)):
     if((type(documents[index]['title']) is None) or (type(documents[index]['title']) == type(None))) and ((type(documents[index]['text']) is None) or (type(documents[index]['text']) == type(None))):
       to_delete.append(index)
+
+
+if ((type(comments_title['26']) is None) or (type(comments_title['26']) is type(None))):
+    print('is None')
+
+
+to_delete = []
+for key in comments_title:
+    if ((type(comments_title[str(key)]) is None) or (type(comments_title[str(key)]) is type(None))):
+        to_delete.append(key)
+for key in to_delete:
+    del comments_title[str(key)]
+
+keys = []
+for i in comments_title_sanitized:
+    keys.append(i)
+for j in range(0,len(comments_title_sanitized)):
+    print(comments_title_sanitized[keys[j]])
+
+keys = []
+for i in comments_text_sanitized:
+    keys.append(i)
+for j in range(0,len(keys)):
+    print(comments_text_sanitized[keys[j]])
