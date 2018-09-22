@@ -1,121 +1,189 @@
 # -*- coding: utf-8 -*-
 """
-Workshop: Text Preparation (TDM)
-Created on Wed Sep  6 16:19:52 2017
-@author: Fan Zhenzhen
+Workshop : Text preparation step by step
+Author: Fan Zhenzhen
 """
-from nltk.corpus import reuters
-from nltk import FreqDist
+import os
+import json
 import string
+import nltk
+from nltk import word_tokenize, FreqDist
 from nltk.corpus import stopwords
 
-# We'll use the reuters corpus in NLTK.
-# The same steps of preprocessing can be done on documents read in from external files.
+#load data for NLTK (you just need to run it once only)
+#nltk.download()
+#at the 'NLTK Downloader' window, choose 'book', then click 'Download'
 
-# How many files are there in the corpus?
-# What are their categories? Single or multiple categories for one file?
-len(reuters.fileids())
-cats = [ reuters.categories(f) for f in reuters.fileids() ]
-cat_num = [ len(c) for c in cats ]
-fd_num = FreqDist(cat_num)
-fd_num.plot()
+# We'll process just one article for illustration
 
-# How many documents are there in each category?
-# FreqDist() can be used to find the answer, but we need to flatten the list of categories first.
-cats_flat = [ c for l in cats for c in l ]
-fd_cat = FreqDist(cats_flat)
-fd_cat
-fd_cat.most_common(20)
+# Set folder path to the directory where the files are located
+# And open the file(s). For example:
+#folder_path = 'D:\MTECH\TextMining\Day2'
+#data =  open(os.path.join(folder_path, "Article_1.json"), "r")
 
-# Let's pick two categories and visualize the articles in each category using word cloud
-grain = reuters.fileids('grain')
-trade = reuters.fileids('trade')
+# Or open the JSON data file from your current working directory
+data =  open("C:\\Users\\Benjamin\\Google Drive\\Masters\\NUS\\ISS MTech SE\\Semester 2\\Elective 3 - KE5205 Text Mining\\Workshop\Day 2 - Text Preparation\\Article_1.json", "r")
 
-grain_tok = [ reuters.words(f) for f in grain ] 
-trade_tok = [ reuters.words(f) for f in trade ] 
+# Load in the JSON object in the file
+jdata = json.load(data)
 
+# Extract the URL and the Text from within the JSON object
+url=jdata['URL']
+url
 
-#Let's define a function preprocess() to perform the preprocessing steps given a file (token list):
-#   punctuation removal, case lowering, stopword removal, 
-#   stemming/lemmatization, further cleaning
+text=jdata['Text']
+text
+type(text)
+len(text)
+text[9300:]
+
+# Conver the free text into tokens
+tokens = word_tokenize(text)
+type(tokens)
+
+# A little exploration: How many words in this article? How many unique words?
+# Any single character words?
+len(tokens)
+tokens[:20]
+unique = set(tokens)
+len(unique)
+len(tokens)/len(unique)
+sorted(unique)[:30]
+single=[w for w in unique if len(w) == 1 ]
+len(single)
+single
+
+# Frequency distribution of the words
+tokens.count('gluten')
+fd = nltk.FreqDist(tokens)
+fd.most_common(50)
+fd.plot(50)
+
+# How long are the words?
+fd_wlen = nltk.FreqDist([len(w) for w in unique])
+fd_wlen
+
+# What about bigrams and trigrams?
+bigr = nltk.bigrams(tokens[:10])
+trigr = nltk.trigrams(tokens[:10])
+tokens[:10]
+list(bigr)
+list(trigr)
+
+# Back to text preprocessing: remove punctuations
+print(string.punctuation)
+tokens_nop = [ t for t in tokens if t not in string.punctuation ]
+print(tokens[:50])
+print(tokens_nop[:50])
+len(tokens)
+len(tokens_nop)
+len(set(tokens_nop))
+
+# Convert all characters to Lower case
+tokens_lower=[ t.lower() for t in tokens_nop ]
+print(tokens_lower[:50])
+len(set(tokens_lower))
+
+# Create a stopword list from the standard list of stopwords available in nltk
 stop = stopwords.words('english')
+print(stop)
+
+# Remove all these stopwords from the text
+tokens_nostop=[ t for t in tokens_lower if t not in stop ]
+print(tokens_nostop[:50])
+len(tokens_lower)
+len(tokens_nostop)
+FreqDist(tokens_nostop).most_common(50)
+
+# Now, let's do some Stemming!
+# There are different stemmers available in Python. Let's take a look at a few
+
+# The most popular stemmer
+porter = nltk.PorterStemmer()
+tokens_porter=[ porter.stem(t) for t in tokens_nostop ] 
+print(tokens_nostop[:50])
+print(tokens_porter[:50])
+
+# The Lancaster Stemmer - developed at Lancaster University
+lancaster = nltk.LancasterStemmer()
+tokens_lanc = [ lancaster.stem(t) for t in tokens_nostop ] 
+print(tokens_lanc[:50])
+
+# The snowball stemmer -  which supports 13 non-English languages as well!
+
 snowball = nltk.SnowballStemmer('english')
-#wnl = nltk.WordNetLemmatizer()
+tokens_snow = [ snowball.stem(t) for t in tokens_nostop ]
+print(tokens_snow[:50])
+len(set(tokens_snow))
 
-def preprocess(toks):
-    toks = [ t.lower() for t in toks if t not in string.punctuation ]
-    toks = [t for t in toks if t not in stop ]
-    toks = [ snowball.stem(t) for t in toks ]
-#    toks = [ wnl.lemmatize(t) for t in toks ]
-    toks_clean = [ t for t in toks if len(t) >= 3 ]
-    return toks_clean
 
-# Preprocess each file in each category
-grain_clean = [ preprocess(f) for f in grain_tok ]
-trade_clean = [ preprocess(f) for f in trade_tok ]
+# Now, for Lemmatization, which converts each word to it's corresponding lemma, use the Lemmatizer provided by nltk
+wnl = nltk.WordNetLemmatizer()
+tokens_lem = [ wnl.lemmatize(t) for t in tokens_nostop ]
+print(tokens_lem[:50])
+len(set(tokens_lem))
 
-# Flatten the list of lists for FreqDist
-grain_flat = [ c for l in grain_clean for c in l ]
-trade_flat = [ c for l in trade_clean for c in l ]
+# Check the lemmatization results. Why are some words not lemmatized?
+# The reason is it needs to know the POS of the words. The default is 'n'.
+# We'll learn how to do POS tagging later.
+wnl.lemmatize('absorbed', pos = 'v')
+wnl.lemmatize('better', pos = 'a')
 
-fd_grain = FreqDist(grain_flat)
-fd_trade = FreqDist(trade_flat)
+# Let's use Snowball Stemmer's result.
+# Further cleaning: filter off anything with less than 3 characters
+nltk.FreqDist(tokens_snow).most_common(100)
+tokens_clean = [ t for t in tokens_snow if len(t) >= 3 ]
+len(tokens_snow)
+len(tokens_clean)
+nltk.FreqDist(tokens_clean).most_common(50)
+fd_clean = nltk.FreqDist(tokens_clean)
 
-# Generate word clouds for the two categories.
-from wordcloud import WordCloud
+# Join the cleaned tokens back into a string.
+# Why? Because some functions we'll use later require string as input.
+text_clean=" ".join(tokens_clean)
+
+
+# ==== Installation of wordcloud package
+# 1. download wordcloud‑1.3.2‑cp36‑cp36m‑win_amd64.whl from http://www.lfd.uci.edu/~gohlke/pythonlibs/#wordcloud 
+# 2. Copy the file to your current working directory
+# 3. Open command prompt
+# 4. python -m pip install wordcloud-1.5.0-cp36-cp36m-win_amd64.whl
+import wordcloud
+from wordcloud import WordCloud, ImageColorGenerator
 import matplotlib.pyplot as plt
+import numpy as np
+from PIL import Image
 
-wc_grain = WordCloud(background_color="white").generate_from_frequencies(fd_grain)
-plt.imshow(wc_grain, interpolation='bilinear')
+# 1. Simple cloud
+# Generate a word cloud image
+# Take note that this function requires text string as input
+wc = WordCloud(background_color="white").generate(text_clean)
+
+# Display the generated image:
+# the matplotlib way:
+
+plt.imshow(wc, interpolation='bilinear')
 plt.axis("off")
 plt.show()
-wc_grain.to_file("wc_grain.png")
 
-wc_trade = WordCloud(background_color="white").generate_from_frequencies(fd_trade)
-plt.imshow(wc_trade, interpolation='bilinear')
+wc.to_file("example.png")
+
+# We can also generate directly from the frequency information
+wc2 = WordCloud(background_color="white")
+wc2.generate_from_frequencies(fd_clean)
+plt.imshow(wc2, interpolation='bilinear')
 plt.axis("off")
 plt.show()
-wc_trade.to_file("wc_trade.png")
 
-# Finally, how to generate TDM
+# 2. Cloud with customized shape and color
+mask = np.array(Image.open("./fly.png"))
+image_colors = ImageColorGenerator(mask)
 
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+wc3 = WordCloud(background_color='white', mask=mask).generate(text_clean)
 
-# sklearn requires the input to be text string
-grain_text = [ ' '.join(f) for f in grain_clean ]
+plt.imshow(wc3.recolor(color_func=image_colors))
+plt.axis("off")
+plt.show()
 
-# Create a matrix using term frequency first using CountVectorizer
-# The result is in sparse matrix format
-vec_tf = CountVectorizer()
-grain_tf = vec_tf.fit_transform(grain_text)
-grain_tf
-
-# Where are the columns and rows then?
-vec_tf.get_feature_names()
-grain_tf_m = grain_tf.toarray()
-
-vec_tf_2 = CountVectorizer(min_df = 2)
-grain_tf_2 = vec_tf_2.fit_transform(grain_text)
-grain_tf_2
-
-# To have binary indexing, set "binary=True"
-vec_bin = CountVectorizer(binary=True)
-grain_bin = vec_bin.fit_transform(grain_text)
-grain_bin.toarray()[:10]
-
-# And tfidf indexing
-vec_tfidf = TfidfVectorizer(min_df = 2)
-grain_tfidf = vec_tfidf.fit_transform(grain_text)
-grain_tfidf
-grain_tfidf.toarray()[:10]
-
-# To save the vectorized results for future use
-import pickle
-pickle.dump(grain_tfidf, open("tfidf.pkl", "wb"))
-pickle.dump(vec_tfidf.vocabulary_, open("feature.pkl","wb"))
-#load the content
-loaded_vec = TfidfVectorizer(decode_error="replace",vocabulary=pickle.load(open("feature.pkl", "rb")))
-tfidf = pickle.load(open("tfidf.pkl", "rb" ) )
-tfidf
-
-grain_tf_m
+wc2.to_file("fd_example.png")
+wc3.to_file("mask_example.png")
